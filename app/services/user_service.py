@@ -274,3 +274,38 @@ class UserService:
             is_liked=data["is_liked"],
             is_bookmarked=data["is_bookmarked"],
         )
+    
+    async def get_suggestions(
+        self,
+        current_user_id: uuid.UUID,
+        limit: int = 3,
+    ) -> list[UserPublic]:
+        """
+        Get user suggestions for "Who to follow".
+        
+        Returns users that the current user is not following.
+        """
+        # Get users not followed by current user
+        suggestions = await self.user_repo.get_users_not_followed_by(current_user_id, limit)
+        
+        result = []
+        for user in suggestions:
+            followers_count = await self.follow_repo.get_followers_count(user.id)
+            following_count = await self.follow_repo.get_following_count(user.id)
+            
+            result.append(UserPublic(
+                id=str(user.id),
+                username=user.username,
+                display_name=user.display_name,
+                bio=user.bio,
+                profile_image_url=user.profile_image_url,
+                banner_image_url=user.banner_image_url,
+                is_verified=user.is_verified,
+                created_at=user.created_at.isoformat(),
+                followers_count=followers_count,
+                following_count=following_count,
+                is_following=False,  # These are suggestions, so not following
+            ))
+        
+        return result
+

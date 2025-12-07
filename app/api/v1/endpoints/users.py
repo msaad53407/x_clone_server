@@ -183,3 +183,25 @@ async def get_following(
         current_user_id=current_user.id if current_user else None,
     )
     return UserListResponse(data=result["data"], pagination=result["pagination"])
+
+
+@router.get(
+    "/suggestions/who-to-follow",
+    response_model=list[UserPublic],
+    summary="Get user suggestions",
+    description="Get users the current user might want to follow.",
+)
+async def get_user_suggestions(
+    current_user: CurrentUser,
+    db: DbSession,
+    limit: int = Query(default=3, ge=1, le=10),
+) -> list[UserPublic]:
+    """
+    Get user suggestions for "Who to follow".
+    
+    Returns users that the current user is not following.
+    If there are no such users, returns random users.
+    """
+    user_service = UserService(db)
+    return await user_service.get_suggestions(current_user.id, limit)
+

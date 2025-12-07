@@ -4,10 +4,11 @@ User repository for database operations on users.
 
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
+from app.models.follow import Follow
 
 
 class UserRepository:
@@ -144,3 +145,35 @@ class UserRepository:
         await self.db.flush()
         await self.db.refresh(user)
         return user
+    
+    async def get_users_not_followed_by(
+        self, 
+        user_id: uuid.UUID, 
+        limit: int = 3
+    ) -> list[User]:
+        """
+        Get users that the given user is not following.
+        
+        Args:
+            user_id: ID of the user to find suggestions for
+            limit: Maximum number of users to return
+            
+        Returns:
+            List of users not followed by the given user
+        """
+        # Subquery to get IDs of users that current user is following
+        following_subquery = (
+            select(Follow.following_id)
+            .where(Follow.follower_id == user_id)
+        )
+        
+        # Get users that are not followed and not the current user
+        result = await self.db.execute(
+            select(User)
+            .where(User.id != user_id)
+            .where(User.id.notin_(following_subquery))
+            .order_by(func.random())
+            .limit(limit)
+        )
+        return list(result.scalars().all())
+

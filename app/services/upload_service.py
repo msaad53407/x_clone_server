@@ -2,6 +2,7 @@
 File upload service using Cloudinary.
 """
 
+import re
 import cloudinary
 import cloudinary.uploader
 from fastapi import UploadFile
@@ -11,11 +12,25 @@ from app.core.config import settings
 
 def configure_cloudinary() -> None:
     """Configure Cloudinary with credentials from settings."""
-    if settings.cloudinary_url:
-        # Cloudinary URL format: cloudinary://API_KEY:API_SECRET@CLOUD_NAME
-        cloudinary.config(cloudinary_url=settings.cloudinary_url)
-    else:
+    if not settings.cloudinary_url:
         raise ValueError("CLOUDINARY_URL not configured")
+    
+    # Parse Cloudinary URL: cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+    # The cloudinary library's cloudinary_url parameter doesn't always work,
+    # so we parse it manually and configure explicitly
+    match = re.match(r'cloudinary://([^:]+):([^@]+)@(.+)', settings.cloudinary_url)
+    if not match:
+        raise ValueError("Invalid CLOUDINARY_URL format. Expected: cloudinary://API_KEY:API_SECRET@CLOUD_NAME")
+    
+    api_key, api_secret, cloud_name = match.groups()
+    
+    cloudinary.config(
+        cloud_name=cloud_name,
+        api_key=api_key,
+        api_secret=api_secret,
+        secure=True
+    )
+
 
 
 class FileUploadService:
