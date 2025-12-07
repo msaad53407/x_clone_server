@@ -5,7 +5,6 @@ from app.models.tweet import Tweet
 from app.models.comment import Comment
 from app.models.like import Like
 from app.models.follow import Follow
-from app.models.retweet import Retweet
 from app.models.bookmark import Bookmark
 from app.models.email_verification_token import EmailVerificationToken
 from app.models.password_reset_token import PasswordResetToken
@@ -17,7 +16,6 @@ __all__ = [
     "Comment",
     "Like",
     "Follow",
-    "Retweet",
     "Bookmark",
     "EmailVerificationToken",
     "PasswordResetToken",

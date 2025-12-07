@@ -5,16 +5,14 @@ Tweet repository for database operations on tweets.
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import delete, func, select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.orm import joinedload
 
 from app.models.bookmark import Bookmark
 from app.models.comment import Comment
 from app.models.like import Like
-from app.models.retweet import Retweet
 from app.models.tweet import Tweet
-from app.models.user import User
 
 
 class TweetRepository:
@@ -55,25 +53,20 @@ class TweetRepository:
         # Get counts
         likes_count = await self._get_likes_count(tweet_id)
         comments_count = await self._get_comments_count(tweet_id)
-        retweets_count = await self._get_retweets_count(tweet_id)
         
         # Get user interaction status
         is_liked = False
-        is_retweeted = False
         is_bookmarked = False
         
         if current_user_id:
             is_liked = await self._is_liked_by_user(tweet_id, current_user_id)
-            is_retweeted = await self._is_retweeted_by_user(tweet_id, current_user_id)
             is_bookmarked = await self._is_bookmarked_by_user(tweet_id, current_user_id)
         
         return {
             "tweet": tweet,
             "likes_count": likes_count,
             "comments_count": comments_count,
-            "retweets_count": retweets_count,
             "is_liked": is_liked,
-            "is_retweeted": is_retweeted,
             "is_bookmarked": is_bookmarked,
         }
     
@@ -127,24 +120,19 @@ class TweetRepository:
         for tweet in tweets:
             likes_count = await self._get_likes_count(tweet.id)
             comments_count = await self._get_comments_count(tweet.id)
-            retweets_count = await self._get_retweets_count(tweet.id)
             
             is_liked = False
-            is_retweeted = False
             is_bookmarked = False
             
             if current_user_id:
                 is_liked = await self._is_liked_by_user(tweet.id, current_user_id)
-                is_retweeted = await self._is_retweeted_by_user(tweet.id, current_user_id)
                 is_bookmarked = await self._is_bookmarked_by_user(tweet.id, current_user_id)
             
             tweets_with_counts.append({
                 "tweet": tweet,
                 "likes_count": likes_count,
                 "comments_count": comments_count,
-                "retweets_count": retweets_count,
                 "is_liked": is_liked,
-                "is_retweeted": is_retweeted,
                 "is_bookmarked": is_bookmarked,
             })
         
@@ -183,26 +171,11 @@ class TweetRepository:
         )
         return result.scalar() or 0
     
-    async def _get_retweets_count(self, tweet_id: uuid.UUID) -> int:
-        result = await self.db.execute(
-            select(func.count(Retweet.id)).where(Retweet.tweet_id == tweet_id)
-        )
-        return result.scalar() or 0
-    
     async def _is_liked_by_user(self, tweet_id: uuid.UUID, user_id: uuid.UUID) -> bool:
         result = await self.db.execute(
             select(Like.id).where(
                 Like.tweet_id == tweet_id,
                 Like.user_id == user_id,
-            )
-        )
-        return result.scalar_one_or_none() is not None
-    
-    async def _is_retweeted_by_user(self, tweet_id: uuid.UUID, user_id: uuid.UUID) -> bool:
-        result = await self.db.execute(
-            select(Retweet.id).where(
-                Retweet.tweet_id == tweet_id,
-                Retweet.user_id == user_id,
             )
         )
         return result.scalar_one_or_none() is not None

@@ -27,7 +27,7 @@ async def get_home_feed(
     Get personalized home feed.
     
     Uses collaborative filtering to recommend tweets based on user's
-    interactions (likes, comments, retweets, bookmarks) combined with
+    interactions (likes, comments, bookmarks) combined with
     tweets from followed users.
     """
     feed_service = FeedService(db)

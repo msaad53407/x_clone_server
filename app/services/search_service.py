@@ -207,8 +207,6 @@ class SearchService:
             quoted_tweet=quoted_tweet_response,
             likes_count=data["likes_count"],
             comments_count=data["comments_count"],
-            retweets_count=data["retweets_count"],
             is_liked=data["is_liked"],
-            is_retweeted=data["is_retweeted"],
             is_bookmarked=data["is_bookmarked"],
         )

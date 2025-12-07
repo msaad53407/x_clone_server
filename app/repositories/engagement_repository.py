@@ -1,5 +1,5 @@
 """
-Engagement repository for likes, retweets, and bookmarks.
+Engagement repository for likes and bookmarks.
 """
 
 import uuid
@@ -10,12 +10,11 @@ from sqlalchemy.orm import joinedload
 
 from app.models.bookmark import Bookmark
 from app.models.like import Like
-from app.models.retweet import Retweet
 from app.models.tweet import Tweet
 
 
 class EngagementRepository:
-    """Repository for engagement operations (likes, retweets, bookmarks)."""
+    """Repository for engagement operations (likes, bookmarks)."""
     
     def __init__(self, db: AsyncSession):
         self.db = db
@@ -42,30 +41,6 @@ class EngagementRepository:
     async def delete_like(self, like: Like) -> None:
         """Delete a like."""
         await self.db.delete(like)
-        await self.db.flush()
-    
-    # Retweet operations
-    async def get_retweet(self, user_id: uuid.UUID, tweet_id: uuid.UUID) -> Retweet | None:
-        """Get a retweet by user and tweet."""
-        result = await self.db.execute(
-            select(Retweet).where(
-                Retweet.user_id == user_id,
-                Retweet.tweet_id == tweet_id,
-            )
-        )
-        return result.scalar_one_or_none()
-    
-    async def create_retweet(self, user_id: uuid.UUID, tweet_id: uuid.UUID) -> Retweet:
-        """Create a new retweet."""
-        retweet = Retweet(user_id=user_id, tweet_id=tweet_id)
-        self.db.add(retweet)
-        await self.db.flush()
-        await self.db.refresh(retweet)
-        return retweet
-    
-    async def delete_retweet(self, retweet: Retweet) -> None:
-        """Delete a retweet."""
-        await self.db.delete(retweet)
         await self.db.flush()
     
     # Bookmark operations

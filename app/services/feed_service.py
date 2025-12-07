@@ -157,7 +157,7 @@ class FeedService:
         """
         Get explore feed showing trending/popular tweets.
         
-        Algorithm: Sort by engagement (likes + comments + retweets) and recency.
+        Algorithm: Sort by engagement (likes + comments) and recency.
         
         Args:
             page: Page number
@@ -238,8 +238,6 @@ class FeedService:
             quoted_tweet=quoted_tweet_response,
             likes_count=data["likes_count"],
             comments_count=data["comments_count"],
-            retweets_count=data["retweets_count"],
             is_liked=data["is_liked"],
-            is_retweeted=data["is_retweeted"],
             is_bookmarked=data["is_bookmarked"],
         )

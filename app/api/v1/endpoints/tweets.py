@@ -128,7 +128,7 @@ async def delete_tweet(
     Delete a tweet.
     
     Only the owner can delete. This also removes all associated
-    likes, comments, retweets, and bookmarks.
+    likes, comments, and bookmarks.
     """
     tweet_service = TweetService(db)
     await tweet_service.delete_tweet(tweet_id, current_user)

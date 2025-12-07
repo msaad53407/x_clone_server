@@ -66,9 +66,7 @@ class TweetService:
             tweet=tweet,
             likes_count=0,
             comments_count=0,
-            retweets_count=0,
             is_liked=False,
-            is_retweeted=False,
             is_bookmarked=False,
             quoted_tweet=quoted_tweet,
         )
@@ -100,9 +98,7 @@ class TweetService:
             tweet=data["tweet"],
             likes_count=data["likes_count"],
             comments_count=data["comments_count"],
-            retweets_count=data["retweets_count"],
             is_liked=data["is_liked"],
-            is_retweeted=data["is_retweeted"],
             is_bookmarked=data["is_bookmarked"],
         )
     
@@ -139,9 +135,7 @@ class TweetService:
                 tweet=data["tweet"],
                 likes_count=data["likes_count"],
                 comments_count=data["comments_count"],
-                retweets_count=data["retweets_count"],
                 is_liked=data["is_liked"],
-                is_retweeted=data["is_retweeted"],
                 is_bookmarked=data["is_bookmarked"],
             )
             for data in tweets_data
@@ -189,9 +183,7 @@ class TweetService:
             tweet=tweet,
             likes_count=data["likes_count"],
             comments_count=data["comments_count"],
-            retweets_count=data["retweets_count"],
             is_liked=data["is_liked"],
-            is_retweeted=data["is_retweeted"],
             is_bookmarked=data["is_bookmarked"],
         )
     
@@ -223,9 +215,7 @@ class TweetService:
         tweet: Tweet,
         likes_count: int,
         comments_count: int,
-        retweets_count: int,
         is_liked: bool,
-        is_retweeted: bool,
         is_bookmarked: bool,
         quoted_tweet: Tweet | None = None,
     ) -> TweetResponse:
@@ -265,8 +255,6 @@ class TweetService:
             quoted_tweet=quoted_tweet_response,
             likes_count=likes_count,
             comments_count=comments_count,
-            retweets_count=retweets_count,
             is_liked=is_liked,
-            is_retweeted=is_retweeted,
             is_bookmarked=is_bookmarked,
         )

@@ -76,11 +76,9 @@ class TweetResponse(BaseModel):
     # Engagement counts
     likes_count: int = 0
     comments_count: int = 0
-    retweets_count: int = 0
     
     # Current user interaction status
     is_liked: bool = False
-    is_retweeted: bool = False
     is_bookmarked: bool = False
     
     model_config = {"from_attributes": True}

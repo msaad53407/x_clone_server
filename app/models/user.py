@@ -81,11 +81,6 @@ class User(Base):
         back_populates="user",
         cascade="all, delete-orphan",
     )
-    retweets: Mapped[list["Retweet"]] = relationship(
-        "Retweet",
-        back_populates="user",
-        cascade="all, delete-orphan",
-    )
     bookmarks: Mapped[list["Bookmark"]] = relationship(
         "Bookmark",
         back_populates="user",
@@ -115,5 +110,4 @@ from app.models.tweet import Tweet  # noqa: E402
 from app.models.comment import Comment  # noqa: E402
 from app.models.like import Like  # noqa: E402
 from app.models.follow import Follow  # noqa: E402
-from app.models.retweet import Retweet  # noqa: E402
 from app.models.bookmark import Bookmark  # noqa: E402

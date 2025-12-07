@@ -1,5 +1,5 @@
 """
-Engagement service for likes, retweets, and bookmarks.
+Engagement service for likes and bookmarks.
 """
 
 import uuid
@@ -20,7 +20,7 @@ from app.schemas.tweet import (
 
 
 class EngagementService:
-    """Service for engagement operations (likes, retweets, bookmarks)."""
+    """Service for engagement operations (likes, bookmarks)."""
     
     def __init__(self, db: AsyncSession):
         self.db = db
@@ -49,33 +49,6 @@ class EngagementService:
             raise NotFoundException("Like not found")
         
         await self.engagement_repo.delete_like(like)
-    
-    # Retweet operations
-    async def retweet(self, tweet_id: uuid.UUID, current_user: User) -> None:
-        """Retweet a tweet."""
-        # Verify tweet exists
-        tweet = await self.tweet_repo.get_by_id(tweet_id)
-        if not tweet:
-            raise NotFoundException("Tweet not found")
-        
-        # Can't retweet own tweet
-        if tweet.user_id == current_user.id:
-            raise BadRequestException("Cannot retweet your own tweet")
-        
-        # Check if already retweeted
-        existing = await self.engagement_repo.get_retweet(current_user.id, tweet_id)
-        if existing:
-            raise BadRequestException("Tweet already retweeted")
-        
-        await self.engagement_repo.create_retweet(current_user.id, tweet_id)
-    
-    async def unretweet(self, tweet_id: uuid.UUID, current_user: User) -> None:
-        """Undo a retweet."""
-        retweet = await self.engagement_repo.get_retweet(current_user.id, tweet_id)
-        if not retweet:
-            raise NotFoundException("Retweet not found")
-        
-        await self.engagement_repo.delete_retweet(retweet)
     
     # Bookmark operations
     async def bookmark_tweet(self, tweet_id: uuid.UUID, current_user: User) -> None:
@@ -162,8 +135,6 @@ class EngagementService:
             quoted_tweet=quoted_tweet_response,
             likes_count=data["likes_count"],
             comments_count=data["comments_count"],
-            retweets_count=data["retweets_count"],
             is_liked=data["is_liked"],
-            is_retweeted=data["is_retweeted"],
             is_bookmarked=data["is_bookmarked"],
         )

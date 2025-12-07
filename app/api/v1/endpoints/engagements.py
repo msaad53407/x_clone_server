@@ -1,5 +1,5 @@
 """
-Engagement endpoints for likes, retweets, and bookmarks.
+Engagement endpoints for likes and bookmarks.
 """
 
 import uuid
@@ -48,42 +48,6 @@ async def unlike_tweet(
     engagement_service = EngagementService(db)
     await engagement_service.unlike_tweet(tweet_id, current_user)
     return MessageResponse(message="Like removed")
-
-
-# Retweet endpoints
-@router.post(
-    "/tweets/{tweet_id}/retweet",
-    response_model=MessageResponse,
-    status_code=status.HTTP_201_CREATED,
-    summary="Retweet",
-    description="Retweet a tweet (simple retweet without comment).",
-)
-async def retweet(
-    tweet_id: uuid.UUID,
-    current_user: CurrentUser,
-    db: DbSession,
-) -> MessageResponse:
-    """Retweet a tweet."""
-    engagement_service = EngagementService(db)
-    await engagement_service.retweet(tweet_id, current_user)
-    return MessageResponse(message="Retweeted")
-
-
-@router.delete(
-    "/tweets/{tweet_id}/retweet",
-    response_model=MessageResponse,
-    summary="Undo retweet",
-    description="Remove a retweet.",
-)
-async def unretweet(
-    tweet_id: uuid.UUID,
-    current_user: CurrentUser,
-    db: DbSession,
-) -> MessageResponse:
-    """Undo a retweet."""
-    engagement_service = EngagementService(db)
-    await engagement_service.unretweet(tweet_id, current_user)
-    return MessageResponse(message="Retweet removed")
 
 
 # Bookmark endpoints

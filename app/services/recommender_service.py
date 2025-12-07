@@ -5,9 +5,8 @@ Adapted from user-provided algorithm to work with our schema.
 Uses:
 - Likes (weight: 1.0)
 - Comments (weight: 2.0)
-- Retweets (weight: 1.5)
-- Follows (weight: 3.0 - for user recommendations)
 - Bookmarks (weight: 2.5)
+- Follows (weight: 3.0 - for user recommendations)
 """
 
 import uuid
@@ -22,9 +21,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.bookmark import Bookmark
 from app.models.comment import Comment
-from app.models.follow import Follow
 from app.models.like import Like
-from app.models.retweet import Retweet
 
 
 class FeedRecommender:
@@ -43,7 +40,6 @@ class FeedRecommender:
         self.interaction_weights = interaction_weights or {
             'like': 1.0,
             'comment': 2.0,
-            'retweet': 1.5,
             'bookmark': 2.5,
         }
         
@@ -85,16 +81,6 @@ class FeedRecommender:
                 'user_id': str(user_id),
                 'item_id': str(tweet_id),
                 'weight': self.interaction_weights['comment'],
-            })
-        
-        # Load retweets
-        retweets_result = await db.execute(select(Retweet.user_id, Retweet.tweet_id))
-        retweets = retweets_result.all()
-        for user_id, tweet_id in retweets:
-            interactions.append({
-                'user_id': str(user_id),
-                'item_id': str(tweet_id),
-                'weight': self.interaction_weights['retweet'],
             })
         
         # Load bookmarks
