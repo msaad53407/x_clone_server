@@ -47,7 +47,11 @@ class Settings(BaseSettings):
     def async_database_url(self) -> str:
         """Ensure database URL uses asyncpg driver."""
         url = self.database_url
-        if url.startswith("postgresql://"):
+        # Handle postgres:// (used by many cloud providers like Heroku, Sevalla)
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql+asyncpg://", 1)
+        # Handle postgresql:// (standard format)
+        elif url.startswith("postgresql://"):
             url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
         return url
 
