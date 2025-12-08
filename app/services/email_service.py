@@ -76,7 +76,7 @@ class EmailService:
                     <p>If you didn't create an account, you can safely ignore this email.</p>
                 </div>
                 <div class="footer">
-                    <p>&copy; 2024 X Clone. All rights reserved.</p>
+                    <p>&copy; 2025 X Clone. All rights reserved.</p>
                 </div>
             </div>
         </body>
@@ -145,7 +145,7 @@ class EmailService:
                     <p>If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.</p>
                 </div>
                 <div class="footer">
-                    <p>&copy; 2024 X Clone. All rights reserved.</p>
+                    <p>&copy; 2025 X Clone. All rights reserved.</p>
                 </div>
             </div>
         </body>
