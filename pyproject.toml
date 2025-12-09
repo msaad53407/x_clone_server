@@ -23,8 +23,8 @@ dependencies = [
     "pydantic-settings>=2.6.0",
     "email-validator>=2.2.0",
     
-    # Email
-    "fastapi-mail>=1.4.2",
+    # Email (Resend API)
+    "resend>=2.0.0",
     
     # File Uploads
     "python-multipart>=0.0.17",

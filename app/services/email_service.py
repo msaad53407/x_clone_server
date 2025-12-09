@@ -1,36 +1,44 @@
 """
-Email service for sending emails.
+Email service for sending emails using Resend API.
 """
 
 import logging
-from pathlib import Path
 
-from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
+import resend
 
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-# Email configuration
-mail_config = ConnectionConfig(
-    MAIL_USERNAME=settings.mail_username,
-    MAIL_PASSWORD=settings.mail_password,
-    MAIL_FROM=settings.mail_from or settings.mail_username,
-    MAIL_PORT=settings.mail_port,
-    MAIL_SERVER=settings.mail_server,
-    MAIL_STARTTLS=settings.mail_starttls,
-    MAIL_SSL_TLS=settings.mail_ssl_tls,
-    USE_CREDENTIALS=True,
-    VALIDATE_CERTS=True,
-    TEMPLATE_FOLDER=Path(__file__).parent.parent / "templates",
-)
-
 
 class EmailService:
-    """Service for sending emails."""
+    """Service for sending emails using Resend API."""
     
     def __init__(self):
-        self.mail = FastMail(mail_config)
+        if not settings.resend_api_key:
+            logger.warning("RESEND_API_KEY not configured - emails will not be sent")
+        else:
+            resend.api_key = settings.resend_api_key
+            logger.info("Email service initialized with Resend API")
+    
+    async def _send_email(self, to: str, subject: str, html_content: str) -> bool:
+        """Send email using Resend API."""
+        if not settings.resend_api_key:
+            logger.error("Cannot send email: RESEND_API_KEY not configured")
+            return False
+        
+        try:
+            params = {
+                "from": settings.resend_from_email,
+                "to": [to],
+                "subject": subject,
+                "html": html_content,
+            }
+            resend.Emails.send(params)
+            return True
+        except Exception as e:
+            logger.error(f"Resend API error: {e}")
+            return False
     
     async def send_verification_email(self, email: str, username: str, token: str) -> bool:
         """
@@ -83,20 +91,14 @@ class EmailService:
         </html>
         """
         
-        message = MessageSchema(
-            subject="Verify your X Clone account",
-            recipients=[email],
-            body=html_content,
-            subtype=MessageType.html,
-        )
-        
-        try:
-            await self.mail.send_message(message)
+        success = await self._send_email(email, "Verify your X Clone account", html_content)
+                                                
+        if success:
             logger.info(f"Verification email sent to {email}")
-            return True
-        except Exception as e:
-            logger.error(f"Failed to send verification email to {email}: {e}")
-            return False
+        else:
+            logger.error(f"Failed to send verification email to {email}")
+        
+        return success
     
     async def send_password_reset_email(self, email: str, username: str, token: str) -> bool:
         """
@@ -152,20 +154,14 @@ class EmailService:
         </html>
         """
         
-        message = MessageSchema(
-            subject="Reset your X Clone password",
-            recipients=[email],
-            body=html_content,
-            subtype=MessageType.html,
-        )
+        success = await self._send_email(email, "Reset your X Clone password", html_content)
         
-        try:
-            await self.mail.send_message(message)
+        if success:
             logger.info(f"Password reset email sent to {email}")
-            return True
-        except Exception as e:
-            logger.error(f"Failed to send password reset email to {email}: {e}")
-            return False
+        else:
+            logger.error(f"Failed to send password reset email to {email}")
+        
+        return success
 
 
 # Singleton instance
